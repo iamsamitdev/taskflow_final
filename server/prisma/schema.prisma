@@ -1,0 +1,54 @@
+// Prisma Schema ของระบบ TaskFlow
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ผู้ใช้ระบบ — 1 User มีได้หลาย Task (One-to-Many)
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // เก็บแบบ hash ด้วย bcrypt เท่านั้น
+  role      Role     @default(member)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  status      Status    @default(todo)
+  priority    Priority  @default(medium)
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relation: Task เป็นของ User คนเดียว — ลบ User แล้ว Task ตามไปด้วย
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  @@index([ownerId, status])
+}
+
+enum Role {
+  admin
+  member
+}
+
+enum Status {
+  todo
+  doing
+  done
+}
+
+enum Priority {
+  low
+  medium
+  high
+}
