@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ผู้ใช้ระบบ — 1 User มีได้หลาย Task (One-to-Many)
